@@ -52,7 +52,7 @@ export default class ModalDialog extends FlowComponent {
             window.setImmediate(function() {me.flowMoved(xhr, request)});
          }
          else {
-            let flag: boolean = (this.getStateValue() as string).toLowerCase() === "true"
+            let flag: boolean = (this.getStateValue() as string)?.toLowerCase() === "true"
             this.setState({ msgboxVisible: flag });
          }
       }
@@ -86,7 +86,7 @@ export default class ModalDialog extends FlowComponent {
       });
       this.msgboxContent=this.model.content;
       this.msgboxTitle=this.model.label;
-      let flag: boolean = (this.getStateValue() as string).toLowerCase() === "true";
+      let flag: boolean = (this.getStateValue() as string)?.toLowerCase() === "true";
       this.setState({ msgboxVisible: flag });
    }
 
@@ -145,12 +145,11 @@ export default class ModalDialog extends FlowComponent {
       //this.setState({ msgboxVisible: false });
       this.lastContent = (<div></div>);
       this.setStateValue(false);
+      let flag: boolean = (this.getStateValue() as string)?.toLowerCase() === "true";
+      this.setState({ msgboxVisible: flag });
       //manywho.engine.sync(this.flowKey);
       if(outcome && outcome.attributes["noTrigger"]?.value.toLowerCase() !== "true") {
          this.triggerOutcome(outcome.developerName);
-      }
-      else {
-         this.setState({ msgboxVisible: false });
       }
    }
 
