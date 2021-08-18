@@ -270,7 +270,7 @@ Change the name as approriate
 ```
  {
         "contentType": "ContentBoolean",
-        "developerName": "ShowModal",
+        "developerName": "ShowContainer",
         "elementType": "TAG",
         "id": null,
         "typeElementId": null,
@@ -280,12 +280,29 @@ Change the name as approriate
 
 The response should have the tagElementId in it
 
+```
+{
+    "contentType": "ContentBoolean",
+    "dateCreated": "2021-08-18T14:33:07.6374264+00:00",
+    "dateModified": "2021-08-18T14:33:07.6374455+00:00",
+    "developerName": "ShowContainer",
+    "developerSummary": null,
+    "elementType": "TAG",
+    "id": "b33df496-42a5-4898-8ce3-bd6a5996298e",
+    "typeElementId": null,
+    "updateByName": false,
+    "whoCreated": null,
+    "whoModified": null,
+    "whoOwner": null
+}
+```
+
 Add the tag to your container / component
 
 ```
 "tags": [
     {
-        "tagElementId": "<<tagElementId>>",
+        "tagElementId": "<<tagElementId = b33df496-42a5-4898-8ce3-bd6a5996298e>>",
         "valueElementToReferenceId": {
             "command": null,
             "id": "<<The id of the boolean value>>",
