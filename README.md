@@ -6,17 +6,20 @@ https://files-manywho-com.s3.amazonaws.com/e1dbcceb-070c-4ce6-95b0-ba282aaf4f48/
 https://files-manywho-com.s3.amazonaws.com/e1dbcceb-070c-4ce6-95b0-ba282aaf4f48/modal.css
 ```
 
-# ModalContainer 
-
-![alt text](https://github.com/MarkWattsBoomi/ModalDialog/blob/main/ModalContainer.png)
-
 A running demo can be seen here: -
 
 https://flow.manywho.com/270413cf-3d82-420b-8432-11bc064f50b4/play/ModalDialog?flow-id=7aa8a3c8-3ab3-48a1-9972-2645d2d030dd
 
-A sharing token of that exaple flow is: -
+
+A sharing token of that example flow is: -
 
 2ukkQ3036d8/zIsyENo+cPPbOUX/JTyE5X487XqozF8Pz95ZE/ZWUZvrhvrHWVN8
+
+
+
+# ModalContainer 
+
+![alt text](https://github.com/MarkWattsBoomi/ModalDialog/blob/main/ModalContainer.png)
 
 
 ## Functionality
@@ -132,14 +135,6 @@ Defaults to not showing an icon.
 # ModalDialog
 
 ![alt text](https://github.com/MarkWattsBoomi/ModalDialog/blob/main/ModalDialog.png)
-
-A running demo can be seen here: -
-
-https://flow.manywho.com/270413cf-3d82-420b-8432-11bc064f50b4/play/ModalDialog?flow-id=7aa8a3c8-3ab3-48a1-9972-2645d2d030dd
-
-A sharing token of that exaple flow is: -
-
-0x9fg32l5ZoITX3ONAdDsk/F/0XpQ0Od6Kwc/tvVPYYENPHdJZBW7wrjw0ruRg5U
 
 
 ## Functionality
