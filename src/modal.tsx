@@ -1,11 +1,12 @@
 import React, { CSSProperties } from 'react';
-import { eLoadingState, FlowComponent,  FlowOutcome } from 'flow-component-model';
 import './modal.css';
 import DragEvent , { eDragEventType } from './DragEvent';
+import './EventManager';
+import FlowAJAX from './FlowAJAX';
 
 declare const manywho: any;
 
-export default class ModalDialog extends FlowComponent {
+export default class ModalDialog extends React.Component<any,any> {
 
    version: string='1.0.0';
    context: any;
@@ -17,9 +18,9 @@ export default class ModalDialog extends FlowComponent {
    top: number = 0;
    left: number = 0;
 
-   msgboxTitle: string = '';
-   msgboxButtons: Array<any> = new Array();
-   msgboxContent: any;
+   //msgboxTitle: string = '';
+   //msgboxButtons: Array<any> = new Array();
+   //msgboxContent: any;
    //msgboxOnClose: any = this.hideMessageBox;
 
 
@@ -28,6 +29,7 @@ export default class ModalDialog extends FlowComponent {
       this.flowMoved = this.flowMoved.bind(this);
       this.setDialog = this.setDialog.bind(this);
       this.positionDialog = this.positionDialog.bind(this);
+      this.state = {visible: false};
    }
 
    setDialog(dialog: HTMLDivElement) {
@@ -48,52 +50,55 @@ export default class ModalDialog extends FlowComponent {
 
    async flowMoved(xhr: any, request: any) {
       let me: any = this;
-      if(xhr.invokeType==='FORWARD') {
-         if(this.loadingState !== eLoadingState.ready){
-            window.setImmediate(function() {me.flowMoved(xhr, request)});
-         }
-         else {
-            let flag: boolean = (this.getStateValue() as string)?.toLowerCase() === "true"
-            this.setState({ msgboxVisible: flag });
-         }
+      if(xhr.invokeType==='FORWARD' || xhr.invokeType==='SYNC') {
+         manywho.model.parseEngineResponse(xhr, this.props.flowKey);
+         let model = manywho.model.getComponent(this.props.id, this.props.flowKey);
+         let visible: boolean = await this.getVisibility();
+         if(this.state.visible !== visible) {
+            this.setState({visible: visible}); 
+         } 
       }
    }
 
    async componentDidMount() {
-      await super.componentDidMount();
-      (manywho as any).eventManager.addDoneListener(this.flowMoved, this.componentId);
-      this.msgboxButtons = new Array();
-      // build buttons from outcomes
-      Object.keys(this.outcomes).forEach((name: string) => {
-         let oc: FlowOutcome = this.outcomes[name];
-         let icon: any;
-         if(oc.attributes["icon"]) {
-            icon=(
-               <span 
-                  className={"mb-dialog-button-bar-button-icon glyphicon glyphicon-" +  oc.attributes["icon"]?.value}
-               />
-            );
-         }
-         this.msgboxButtons.push(
-            <button 
-               className="mb-dialog-button-bar-button" 
-               title={oc.attributes["tooltip"]?.value || oc.label || ""}
-               onMouseDown={(e) => {e.stopPropagation();this.hideMessageBox(oc)}}
-            >
-               {icon}
-               {oc.label || oc.developerName}
-            </button>
-        );
-      });
-      this.msgboxContent=this.model.content;
-      this.msgboxTitle=this.model.label;
-      let flag: boolean = (this.getStateValue() as string)?.toLowerCase() === "true";
-      this.setState({ msgboxVisible: flag });
+      let model = manywho.model.getComponent(this.props.id, this.props.flowKey);
+      let state = manywho.state.getComponent(this.props.id, this.props.flowKey);
+      (manywho as any).eventManager.addDoneListener(this.flowMoved, this.props.id);
+      
+      let visible: boolean = await this.getVisibility();
+      if(this.state.visible !== visible) {
+         this.setState({visible: visible}); 
+      } 
    }
 
-   async componentWillUnmount() {
-      await super.componentWillUnmount();
-      (manywho as any).eventManager.removeDoneListener(this.componentId);
+   async getVisibility() : Promise<boolean> {
+      let visible: boolean = false;
+      let model = manywho.model.getComponent(this.props.id, this.props.flowKey);
+      if(model) {
+         if(model.attributes.state) {
+            //could be either a tag or an explicit Flow field
+            let tag = model.tags?.find((element: any) => element.developerName === model.attributes.state);
+            if(tag){
+               visible=tag.contentValue.toLowerCase() === "true";
+            }
+            else {
+               const value: any = await FlowAJAX.getValue(this.props.flowKey, model.attributes.state);
+               visible = (value?.contentValue as string).toLowerCase() === "true"; 
+            }
+         }
+         else {
+            //must be the state value from the model
+            visible = (model?.contentValue as string).toLowerCase() === "true"; 
+            let newState = { "contentValue": model.visible };
+            manywho.state.setComponent(this.props.id, newState, this.props.flowKey);
+         }
+      }
+      //this.setState({visible: visible})
+      return visible;
+  }
+
+   componentWillUnmount() {
+      (manywho as any).eventManager.removeDoneListener(this.props.id);
    }
 
    positionDialog() {
@@ -139,49 +144,74 @@ export default class ModalDialog extends FlowComponent {
       return false;
    }
 
-   async hideMessageBox(outcome?: FlowOutcome) {
-      //let flag: FlowField = await this.loadValue(this.getAttribute("visibleValueName","ShowModal"));
-      //flag.value = false;
-      //await this.updateValues(flag);
-      //this.setState({ msgboxVisible: false });
-      this.lastContent = (<div></div>);
-      this.setStateValue(false);
-      let flag: boolean = (this.getStateValue() as string)?.toLowerCase() === "true";
-      this.setState({ msgboxVisible: flag });
+   async hideMessageBox(outcome?: any) {
+
+      //this.lastContent = (<div></div>);
+      //let state = manywho.state.getComponent(this.props.id, this.props.flowKey)
+      //state.contentValue=false;
+      this.setState({ visible: false });
       //manywho.engine.sync(this.flowKey);
-      if(outcome && outcome.attributes["noTrigger"]?.value.toLowerCase() !== "true") {
-         this.triggerOutcome(outcome.developerName);
+      if(outcome && outcome.attributes?.noTrigger?.toLowerCase() !== "true") {
+         await manywho.component.onOutcome(outcome, null, this.props.flowKey);
+      }
+      else {
+            //await manywho.engine.sync(this.props.flowKey);
       }
    }
 
    render() {
-      if(this.loadingState !== eLoadingState.ready) {
+      let model = manywho.model.getComponent(this.props.id, this.props.flowKey);
+      if(model.loading === true) {
          return this.lastContent;
       }
       //handle classes attribute and hidden and size
-      let classes: string = 'mb-redaction ' + this.getAttribute('classes','');
+      let classes: string = 'mb-redaction ' + model.attributes["classes"];
       let style: CSSProperties = {};
       style.width='-webkit-fill-available';
       style.height='-webkit-fill-available';
 
-      if(this.model.visible === false || this.state.msgboxVisible !== true) {
+      if(model.isVisible === false || this.state.visible !== true) {
          this.lastContent = (
             <div/>
          );
       }
       else {
-         if(this.model.width) {
-            style.width=this.model.width + 'px'
+         let msgboxButtons = new Array();
+         // build buttons from outcomes
+         let outcomes: any = manywho.model.getOutcomes(this.props.id,this.props.flowKey);
+         outcomes.forEach((outcome: any) => {
+            let icon: any;
+            if(outcome.attributes?.icon) {
+               icon=(
+                  <span 
+                     className={"mb-dialog-button-bar-button-icon glyphicon glyphicon-" +  outcome.attributes?.icon}
+                  />
+               );
+            }
+            msgboxButtons.push(
+               <button 
+                  className="mb-dialog-button-bar-button" 
+                  title={outcome.attributes?.tooltip || outcome.label || ""}
+                  onMouseDown={(e) => {e.stopPropagation();this.hideMessageBox(outcome)}}
+               >
+                  {icon}
+                  {outcome.label || outcome.developerName}
+               </button>
+         );
+         });
+         
+         if(model.width) {
+            style.width=model.width + 'px'
          }
-         if(this.model.height) {
-            style.height=this.model.height + 'px'
+         if(model.height) {
+            style.height=model.height + 'px'
          }
          let icon: any;
-         if(this.getAttribute("icon")) {
+         if(model.attributes["icon"]) {
             icon=(
                <span 
-                  className={"mb-dialog-header-icon glyphicon glyphicon-" +  this.getAttribute("icon")}
-                  title={this.model.helpInfo}
+                  className={"mb-dialog-header-icon glyphicon glyphicon-" +  model.attributes["icon"]}
+                  title={model.attributes?.tooltip || model.helpInfo}
                />
             );
          }
@@ -204,7 +234,7 @@ export default class ModalDialog extends FlowComponent {
                   >
                         <div style={{display: 'flex', flexDirection: 'row', flexGrow: 1}}>
                            {icon}
-                        <span className="mb-dialog-header-title">{this.msgboxTitle}</span>
+                        <span className="mb-dialog-header-title">{model.attriubes?.title || model.label}</span>
                         </div>
                         <div style={{display: 'flex', flexDirection: 'row', marginLeft: 'auto', flexGrow: 0}}>
                         <span
@@ -214,9 +244,9 @@ export default class ModalDialog extends FlowComponent {
                         />
                         </div>
                   </div>
-                  <div className="mb-dialog-body" dangerouslySetInnerHTML={{__html:this.msgboxContent}} />
-                  <div className="modal-dialog-button-bar" >
-                        {this.msgboxButtons}   
+                  <div className="mb-dialog-body" dangerouslySetInnerHTML={{__html:model.content}} />
+                  <div className="mb-dialog-button-bar" >
+                        {msgboxButtons}   
                   </div>
                   </div >
                </div>

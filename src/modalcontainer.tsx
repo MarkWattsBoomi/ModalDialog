@@ -1,12 +1,12 @@
-import { eLoadingState, FlowComponent, FlowField, FlowOutcome } from "flow-component-model";
 import React, { CSSProperties } from "react";
-import ReactDOM from "react-dom";
 import DragEvent , { eDragEventType } from './DragEvent';
+import FlowAJAX from "./FlowAJAX";
 import './modal.css';
+import './EventManager';
 
 declare const manywho: any;
 
-export default class ModalContainer extends FlowComponent {
+export default class ModalContainer extends React.Component<any,any> {
 
     container: any;
     redactionElement: HTMLElement;
@@ -33,7 +33,7 @@ export default class ModalContainer extends FlowComponent {
     }
 
     async componentDidMount() {
-        await super.componentDidMount();
+        
         (manywho as any).eventManager.addDoneListener(this.flowMoved, this.props.id);
 
         // get and save top level repeating container
@@ -44,28 +44,55 @@ export default class ModalContainer extends FlowComponent {
             console.log('No state attribute specified on modal to control visibility');
         } 
 
-        this.setState({visible: await this.getVisibility()}); 
-        this.forceUpdate();
+        let visible: boolean = await this.getVisibility();
+        if(this.state.visible !== visible) {
+            this.setState({visible: visible}); 
+        } 
+        //this.forceUpdate();
     }
 
     async componentWillUnmount() {
-        await super.componentWillUnmount();
+        //await super.componentWillUnmount();
         (manywho as any).eventManager.removeDoneListener(this.props.id);
     }
 
-    //componentWillReceiveProps() {
-    //    console.log("props")
-    //}
+    async componentDidUpdate() {
+        //let visible: boolean = await this.getVisibility();
+        //if(this.state.visible !== visible) {
+        //    this.setState({visible: visible}); 
+        //} 
+    }
+
+    async componentWillUpdate() {
+        //let visible: boolean = await this.getVisibility();
+        //if(this.state.visible !== visible) {
+        //    this.setState({visible: visible}); 
+        //} 
+    }
+
+    async componentWillReceiveProps() {
+        //let visible: boolean = await this.getVisibility();
+        //if(this.state.visible !== visible) {
+        //    this.setState({visible: visible}); 
+        //} 
+    }
 
     async flowMoved(xhr: any, request: any) {
         let me: any = this;
-        if(xhr.invokeType==='FORWARD') {
-           if(this.loadingState !== eLoadingState.ready){
-              window.setImmediate(function() {me.flowMoved(xhr, request)});
-           }
-           else {
-              this.setState({ visible: await this.getVisibility() });
-           }
+        if(xhr.invokeType==='FORWARD' || xhr.invokeType==='SYNC') {
+            this.container = manywho.model.getContainer(this.props.id, this.props.flowKey);
+            //let state = manywho.state.getComponent(this.props.id, this.props.flowKey);
+            if(this.container.loading === true){
+               window.setImmediate(function() {me.flowMoved(xhr, request)});
+            }
+            else {
+                manywho.model.parseEngineResponse(xhr, this.props.flowKey);
+                let visible: boolean = await this.getVisibility();
+                if(this.state.visible !== visible) {
+                    this.setState({visible: visible}); 
+                } 
+            }
+           //}
         }
     }
 
@@ -83,13 +110,25 @@ export default class ModalContainer extends FlowComponent {
            this.dialog.classList.add('shown');
            this.positionDialog();
         }
-     }
+    }
+
+
 
     async getVisibility() : Promise<boolean> {
         let visible: boolean = false;
-
-        let fld: FlowField = await this.loadValue(this.container.attributes.state);
-        visible = (fld?.value as string).toLowerCase() === "true"; 
+        this.container = manywho.model.getContainer(this.props.id, this.props.flowKey);
+        if(this.container) {
+            //could be either a tag or an explicit Flow field
+            let tag = this.container.tags?.find((element: any) => element.developerName === this.container.attributes.state);
+            if(tag){
+                visible=tag.contentValue.toLowerCase() === "true";
+            }
+            else {
+                const value: any = await FlowAJAX.getValue(this.props.flowKey, this.container.attributes.state);
+                visible = (value?.contentValue as string).toLowerCase() === "true"; 
+            }
+        }
+        //this.setState({visible: visible})
         return visible;
     }
 
@@ -140,19 +179,14 @@ export default class ModalContainer extends FlowComponent {
         if(this.redactionElement) {
             this.setState({visible: false});
         }
-        let fld: FlowField = await this.loadValue(this.container.attributes.state);
-        fld.value = false;
-        await this.updateValues(fld);
-
-        await manywho.engine.sync(this.props.flowKey);
         
         if(outcome && outcome.attributes["noTrigger"]?.toLowerCase() !== "true") {
             await manywho.component.onOutcome(outcome, null, this.props.flowKey);
         }
-        //else {
-        //    manywho.engine.sync(this.props.flowKey);
-        //}
-     }
+        else {
+            //await manywho.engine.sync(this.props.flowKey);
+        }
+    }
 
     render() : any {
         let content: any = <div/>;
@@ -185,12 +219,12 @@ export default class ModalContainer extends FlowComponent {
                                 }
                                 msgboxButtons.push(
                                     <button 
-                                    className="mb-dialog-button-bar-button" 
-                                    title={outcome.attributes["tooltip"] || outcome.label || ""}
-                                    onMouseDown={(e) => {e.stopPropagation();this.hideMessageBox(outcome)}}
+                                        className="mb-dialog-button-bar-button" 
+                                        title={outcome.attributes["tooltip"] || outcome.label || ""}
+                                        onMouseDown={(e) => {e.stopPropagation();this.hideMessageBox(outcome)}}
                                     >
-                                    {icon}
-                                    {outcome.label || outcome.developerName}
+                                        {icon}
+                                        {outcome.label || outcome.developerName}
                                     </button>
                                 );
                             });
@@ -248,16 +282,13 @@ export default class ModalContainer extends FlowComponent {
                                 <div className="mb-dialog-body" >
                                     {children}
                                 </div>
-                                <div className="modal-dialog-button-bar" >
+                                <div className="mb-dialog-button-bar" >
                                         {msgboxButtons}   
                                 </div>
                                 </div >
                             </div>
                         </div>
-                    );
-                    
-                    //ReactDOM.render(content,containerElement);
-                    
+                    );                    
                 }
             }
         }
