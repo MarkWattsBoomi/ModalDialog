@@ -154,7 +154,8 @@ export default class ModalContainer extends FlowComponent {
         //}
      }
 
-    render() {
+    render() : any {
+        let content: any = <div/>;
         if(this.container) {     
             let containerElement = document.getElementById(this.container.id);
             if(containerElement) {
@@ -214,7 +215,7 @@ export default class ModalContainer extends FlowComponent {
                     let classes: string = 'mb-redaction ' + this.container.attributes?.classes;
                     let style: CSSProperties = {};
                     
-                    let content = (
+                    content = (
                         <div
                             className={classes}
                             onMouseMove={(e) => {this.onMouseMove(e); }}
@@ -233,8 +234,8 @@ export default class ModalContainer extends FlowComponent {
                                         onMouseDown={(e) => {this.onMouseDown(e); }}
                                 >
                                         <div style={{display: 'flex', flexDirection: 'row', flexGrow: 1}}>
-                                        {icon}
-                                        <span className="mb-dialog-header-title">{this.container.label}</span>
+                                            {icon}
+                                            <span className="mb-dialog-header-title">{this.container.attributes["title"]}</span>
                                         </div>
                                         <div style={{display: 'flex', flexDirection: 'row', marginLeft: 'auto', flexGrow: 0}}>
                                         <span
@@ -255,14 +256,12 @@ export default class ModalContainer extends FlowComponent {
                         </div>
                     );
                     
-                    ReactDOM.render(content,containerElement);
+                    //ReactDOM.render(content,containerElement);
                     
                 }
             }
         }
-
-        return (<div></div>);
-        
+        return content;
     }
 
 }
