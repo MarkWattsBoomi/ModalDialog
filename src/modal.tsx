@@ -89,6 +89,7 @@ export default class ModalDialog extends React.Component<any,any> {
          else {
             //must be the state value from the model
             visible = (model?.contentValue as string).toLowerCase() === "true"; 
+            // preserve the model value to the state or it will get lost on any outcome
             let newState = { "contentValue": model.visible };
             manywho.state.setComponent(this.props.id, newState, this.props.flowKey);
          }
