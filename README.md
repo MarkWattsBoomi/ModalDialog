@@ -261,3 +261,36 @@ The short name of a glyphicon to display beside the text on the button.
 Defaults to not showing an icon.
 
 
+# Tags note
+
+Do a POST on the API /api/draw/1/element/tag.
+
+Change the name as approriate
+
+```
+ {
+        "contentType": "ContentBoolean",
+        "developerName": "ShowModal",
+        "elementType": "TAG",
+        "id": null,
+        "typeElementId": null,
+        "updateByName": false
+    }
+```
+
+The response should have the tagElementId in it
+
+Add the tag to your container / component
+
+```
+"tags": [
+    {
+        "tagElementId": "<<tagElementId>>",
+        "valueElementToReferenceId": {
+            "command": null,
+            "id": "<<The id of the boolean value>>",
+            "typeElementPropertyId": null
+        }
+    }
+]
+```
