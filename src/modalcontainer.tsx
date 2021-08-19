@@ -35,7 +35,7 @@ export default class ModalContainer extends React.Component<any,any> {
     async componentDidMount() {
         
         (manywho as any).eventManager.addDoneListener(this.flowMoved, this.props.id);
-
+        
         // get and save top level repeating container
         this.container = manywho.model.getContainer(this.props.id, this.props.flowKey);
 
@@ -80,21 +80,14 @@ export default class ModalContainer extends React.Component<any,any> {
     async flowMoved(xhr: any, request: any) {
         let me: any = this;
         if(xhr.invokeType==='FORWARD' || xhr.invokeType==='SYNC') {
-            this.container = manywho.model.getContainer(this.props.id, this.props.flowKey);
-            //let state = manywho.state.getComponent(this.props.id, this.props.flowKey);
-            if(this.container.loading === true){
-               window.setImmediate(function() {me.flowMoved(xhr, request)});
-            }
-            else {
-                manywho.model.parseEngineResponse(xhr, this.props.flowKey);
-                let visible: boolean = await this.getVisibility();
-                if(this.state.visible !== visible) {
-                    this.setState({visible: visible}); 
-                } 
-            }
-           //}
+            manywho.model.parseEngineResponse(xhr, this.props.flowKey);     
+            let visible: boolean = await this.getVisibility();
+            if(this.state.visible !== visible) {
+                this.setState({visible: visible}); 
+            } 
         }
     }
+
 
     setDialog(dialog: HTMLDivElement) {
         this.dialog = dialog;
@@ -176,9 +169,9 @@ export default class ModalContainer extends React.Component<any,any> {
     }
 
     async hideMessageBox(outcome?: any) {
-        if(this.redactionElement) {
-            this.setState({visible: false});
-        }
+        //if(this.redactionElement) {
+        //    this.setState({visible: false});
+        //}
         
         if(outcome && outcome.attributes["noTrigger"]?.toLowerCase() !== "true") {
             await manywho.component.onOutcome(outcome, null, this.props.flowKey);
