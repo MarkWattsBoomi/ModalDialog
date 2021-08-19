@@ -52,7 +52,6 @@ export default class ModalDialog extends React.Component<any,any> {
       let me: any = this;
       if(xhr.invokeType==='FORWARD' || xhr.invokeType==='SYNC') {
          manywho.model.parseEngineResponse(xhr, this.props.flowKey);
-         let model = manywho.model.getComponent(this.props.id, this.props.flowKey);
          let visible: boolean = await this.getVisibility();
          if(this.state.visible !== visible) {
             this.setState({visible: visible}); 
@@ -74,6 +73,7 @@ export default class ModalDialog extends React.Component<any,any> {
    async getVisibility() : Promise<boolean> {
       let visible: boolean = false;
       let model = manywho.model.getComponent(this.props.id, this.props.flowKey);
+      let state = manywho.state.getComponent(this.props.id, this.props.flowKey);
       if(model) {
          if(model.attributes.state) {
             //could be either a tag or an explicit Flow field
@@ -90,7 +90,7 @@ export default class ModalDialog extends React.Component<any,any> {
             //must be the state value from the model
             visible = (model?.contentValue as string).toLowerCase() === "true"; 
             // preserve the model value to the state or it will get lost on any outcome
-            let newState = { "contentValue": model.visible };
+            let newState = { "contentValue": visible };
             manywho.state.setComponent(this.props.id, newState, this.props.flowKey);
          }
       }
@@ -150,7 +150,7 @@ export default class ModalDialog extends React.Component<any,any> {
       //this.lastContent = (<div></div>);
       //let state = manywho.state.getComponent(this.props.id, this.props.flowKey)
       //state.contentValue=false;
-      this.setState({ visible: false });
+      //this.setState({ visible: false });
       //manywho.engine.sync(this.flowKey);
       if(outcome && outcome.attributes?.noTrigger?.toLowerCase() !== "true") {
          await manywho.component.onOutcome(outcome, null, this.props.flowKey);
