@@ -196,10 +196,24 @@ export default class ModalContainer extends React.Component<any,any> {
                     const childData : Array<any> = manywho.model.getChildren(containerElement.id, this.props.flowKey);
 
                     let msgboxButtons: Array<any> = new Array();
+                    let closeButton: any;
                     let displayChildData: Array<any> = [];
                     childData?.forEach((childElement: any) => {
-                        if(childElement.componentType?.toLowerCase() === "outcomes" && childElement.developerName.toLowerCase()==="modaloutcomes") {
+                        if(childElement.componentType?.toLowerCase() === "outcomes") { //} && childElement.developerName.toLowerCase()==="modaloutcomes") {
                             let outcomes: any = manywho.model.getOutcomes(childElement.pageComponentId,this.props.flowKey);
+                            
+                            if(this.container.attributes["closeOutcome"]) {
+                                let closeOutcome: any = outcomes.find((outcome: any) => outcome.value === this.container.attributes["closeOutcome"].value);
+                                if(closeOutcome) {
+                                closeButton = (
+                                    <span
+                                        className="glyphicon glyphicon-remove mb-dialog-header-button"
+                                        title="Close"
+                                        onMouseDown={(e) => {this.stopEventBubble(e); this.hideMessageBox(closeOutcome) }}
+                                    />
+                                );
+                                }
+                            }
                             outcomes?.forEach((outcome: any) => {
 
                                 let icon: any;
@@ -265,11 +279,7 @@ export default class ModalContainer extends React.Component<any,any> {
                                             <span className="mb-dialog-header-title">{this.container.attributes["title"]}</span>
                                         </div>
                                         <div style={{display: 'flex', flexDirection: 'row', marginLeft: 'auto', flexGrow: 0}}>
-                                        <span
-                                        className="glyphicon glyphicon-remove mb-dialog-header-button"
-                                        title="Close"
-                                        onMouseDown={(e) => {this.stopEventBubble(e); this.hideMessageBox() }}
-                                        />
+                                            {closeButton}
                                         </div>
                                 </div>
                                 <div className="mb-dialog-body" >

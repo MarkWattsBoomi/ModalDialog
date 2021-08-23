@@ -152,7 +152,7 @@ export default class ModalDialog extends React.Component<any,any> {
       //state.contentValue=false;
       //this.setState({ visible: false });
       //manywho.engine.sync(this.flowKey);
-      if(outcome && outcome.attributes?.noTrigger?.toLowerCase() !== "true") {
+      if(outcome) {
          await manywho.component.onOutcome(outcome, null, this.props.flowKey);
       }
       else {
@@ -162,6 +162,8 @@ export default class ModalDialog extends React.Component<any,any> {
 
    render() {
       let model = manywho.model.getComponent(this.props.id, this.props.flowKey);
+
+      
       if(model.loading === true) {
          return this.lastContent;
       }
@@ -180,6 +182,21 @@ export default class ModalDialog extends React.Component<any,any> {
          let msgboxButtons = new Array();
          // build buttons from outcomes
          let outcomes: any = manywho.model.getOutcomes(this.props.id,this.props.flowKey);
+         
+         let closeButton: any;
+         if(model.attributes["closeOutcome"]) {
+            let closeOutcome: any = outcomes.find((outcome: any) => outcome.value === model.attributes["closeOutcome"].value);
+            if(closeOutcome) {
+               closeButton = (
+                  <span
+                     className="glyphicon glyphicon-remove mb-dialog-header-button"
+                     title="Close"
+                     onMouseDown={(e) => {this.stopEventBubble(e); this.hideMessageBox(closeOutcome) }}
+                  />
+               );
+            }
+         }
+         
          outcomes.forEach((outcome: any) => {
             let icon: any;
             if(outcome.attributes?.icon) {
@@ -235,14 +252,10 @@ export default class ModalDialog extends React.Component<any,any> {
                   >
                         <div style={{display: 'flex', flexDirection: 'row', flexGrow: 1}}>
                            {icon}
-                        <span className="mb-dialog-header-title">{model.attriubes?.title || model.label}</span>
+                        <span className="mb-dialog-header-title">{model.attributes?.title || model.label}</span>
                         </div>
                         <div style={{display: 'flex', flexDirection: 'row', marginLeft: 'auto', flexGrow: 0}}>
-                        <span
-                           className="glyphicon glyphicon-remove mb-dialog-header-button"
-                           title="Close"
-                           onMouseDown={(e) => {this.stopEventBubble(e); this.hideMessageBox() }}
-                        />
+                        {closeButton}
                         </div>
                   </div>
                   <div className="mb-dialog-body" dangerouslySetInnerHTML={{__html:model.content}} />

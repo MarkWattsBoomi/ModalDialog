@@ -13,7 +13,7 @@ https://flow.manywho.com/270413cf-3d82-420b-8432-11bc064f50b4/play/ModalDialog?f
 
 A sharing token of that example flow is: -
 
-AjcJ+q5k/AVWGJRB56f5K4ZATUwUUq6O3Lt7RJSr8WUcLYYonKsucBHgG9lLFlZR
+zXywaYorwx5ZbUBbt/lZo4Xx2240pYVnbns+/QHznND+i4T89pusZSsWNFpEq/VZ
 
 
 
@@ -88,15 +88,23 @@ Either the name of a "Tag" or a Flow Value element which contains the boolean di
 
 If it's a Tag then it must be attached to the container in the metadata.
 
+### closeOutcome
+
+Either the name of an outcome connected to any child outcomes component which should be triggered when the top right close button is pressed.
+
+If this attribute is ommitted then the close button is not displayed.
 
 
 ## Outcomes
 
-Add an outcomes component inside the container and name it "ModalOutcomes".
+Add one or more outcomes component(s) inside the container or anywhere in the child hierarchy.
 
-Any outcomes defined and attached to this outcomes component will be rendered as buttons on the dialog.
+Any outcomes defined and attached to these outcomes components will be rendered as buttons on the dialog.
 
 !!! You are responsible to use an operator on these outcomes to set the boolean display value !!!
+
+!!! Beware the save mode when on the outcomes.  Save changes will cause page rules to trigger on potentially hidden fields which
+    may prevent the outcome triggering !!!
 
 
 ### Outcome Properties
@@ -179,6 +187,7 @@ If set and if there's an icon specified in attributes then this text will be sho
 Overridden byt the "tooltip" attribute if defined.
 
 
+
 ## Component Attributes
 
 ### classes
@@ -222,11 +231,22 @@ Either the name of a "Tag" or a Flow Value element which contains the boolean di
 
 If it's a Tag then it must be attached to the container in the metadata.
 
+### closeOutcome
+
+Either the name of an outcome connected to the component which should be triggered when the top right close button is pressed.
+
+If this attribute is ommitted then the close button is not displayed.
+
 
 
 ## Outcomes
 
 Any outcomes defined and attached to the component will be rendered as buttons on the dialog.
+
+!!! You are responsible to use an operator on these outcomes to set the boolean display value !!!
+
+!!! Beware the save mode when on the outcomes.  Save changes will cause page rules to trigger on potentially hidden fields which
+    may prevent the outcome triggering !!!
 
 ### Outcome Properties
 
