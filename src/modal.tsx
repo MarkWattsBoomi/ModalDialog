@@ -184,7 +184,7 @@ export default class ModalDialog extends React.Component<any,any> {
          let outcomes: any = manywho.model.getOutcomes(this.props.id,this.props.flowKey);
          
          let closeButton: any;
-         if(model.attributes["closeOutcome"]) {
+         if(model.attributes?.closeOutcome) {
             let closeOutcome: any = outcomes.find((outcome: any) => outcome.value === model.attributes["closeOutcome"].value);
             if(closeOutcome) {
                closeButton = (
@@ -202,7 +202,7 @@ export default class ModalDialog extends React.Component<any,any> {
             if(outcome.attributes?.icon) {
                icon=(
                   <span 
-                     className={"mb-dialog-button-bar-button-icon glyphicon glyphicon-" +  outcome.attributes?.icon}
+                     className={"mb-dialog-button-bar-button-icon glyphicon glyphicon-" +  outcome.attributes.icon}
                   />
                );
             }

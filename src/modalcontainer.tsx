@@ -173,7 +173,7 @@ export default class ModalContainer extends React.Component<any,any> {
         //    this.setState({visible: false});
         //}
         
-        if(outcome && outcome.attributes["noTrigger"]?.toLowerCase() !== "true") {
+        if(outcome) {
             await manywho.component.onOutcome(outcome, null, this.props.flowKey);
         }
         else {
@@ -202,7 +202,7 @@ export default class ModalContainer extends React.Component<any,any> {
                         if(childElement.componentType?.toLowerCase() === "outcomes") { //} && childElement.developerName.toLowerCase()==="modaloutcomes") {
                             let outcomes: any = manywho.model.getOutcomes(childElement.pageComponentId,this.props.flowKey);
                             
-                            if(this.container.attributes["closeOutcome"]) {
+                            if(this.container.attributes?.closeOutcome) {
                                 let closeOutcome: any = outcomes.find((outcome: any) => outcome.value === this.container.attributes["closeOutcome"].value);
                                 if(closeOutcome) {
                                 closeButton = (
@@ -217,7 +217,7 @@ export default class ModalContainer extends React.Component<any,any> {
                             outcomes?.forEach((outcome: any) => {
 
                                 let icon: any;
-                                if(outcome.attributes["icon"]) {
+                                if(outcome.attributes?.icon) {
                                     icon=(
                                     <span 
                                         className={"mb-dialog-button-bar-button-icon glyphicon glyphicon-" +  outcome.attributes["icon"]}
@@ -227,7 +227,7 @@ export default class ModalContainer extends React.Component<any,any> {
                                 msgboxButtons.push(
                                     <button 
                                         className="mb-dialog-button-bar-button" 
-                                        title={outcome.attributes["tooltip"] || outcome.label || ""}
+                                        title={outcome.attributes?.tooltip || outcome.label || ""}
                                         onMouseDown={(e) => {e.stopPropagation();this.hideMessageBox(outcome)}}
                                     >
                                         {icon}
