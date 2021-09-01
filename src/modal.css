@@ -152,6 +152,15 @@
     text-align: center;
 }
 
+.mb-dialog-body-fullscreen
+{
+    width: 100%;
+    font-size: 18px;
+    color:  #000;
+    padding:  0;
+    text-align: center;
+}
+
 .mb-dialog-body-client
 {
     margin:0px;
@@ -230,6 +239,21 @@
 
 
 .mb-dialog-button-bar-button
+{
+    color: #000 !important;
+    font-size: 12pt !important;
+    margin-right: 3px !important;
+    margin-top: 5px !important;
+    cursor: default !important;
+    background-color: #a79f9f;
+    border-radius: 5px !important;
+    border: none !important;
+    padding-left: 0.8rem;
+    padding-right: 0.8rem;
+    display: flex;
+} 
+
+.mb-dialog-button-bar-button-enabled
 {
     color: #fefefe !important;
     font-size: 12pt !important;

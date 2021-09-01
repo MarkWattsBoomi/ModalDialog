@@ -80,11 +80,19 @@ export default class ModalContainer extends React.Component<any,any> {
     async flowMoved(xhr: any, request: any) {
         let me: any = this;
         if(xhr.invokeType==='FORWARD' || xhr.invokeType==='SYNC') {
-            manywho.model.parseEngineResponse(xhr, this.props.flowKey);     
+           // manywho.model.parseEngineResponse(xhr, this.props.flowKey);     
             let visible: boolean = await this.getVisibility();
             if(this.state.visible !== visible) {
                 this.setState({visible: visible}); 
             } 
+        }
+        else if(xhr.invokeType==='SYNC') {
+            //manywho.model.parseEngineResponse(xhr, this.props.flowKey);     
+            //let visible: boolean = await this.getVisibility();
+            //if(this.state.visible !== visible) {
+            //    this.setState({visible: visible}); 
+            //} 
+            this.forceUpdate();
         }
     }
 
@@ -214,32 +222,56 @@ export default class ModalContainer extends React.Component<any,any> {
                                 );
                                 }
                             }
-                            outcomes?.forEach((outcome: any) => {
 
-                                let icon: any;
-                                if(outcome.attributes?.icon) {
-                                    icon=(
-                                    <span 
-                                        className={"mb-dialog-button-bar-button-icon glyphicon glyphicon-" +  outcome.attributes["icon"]}
-                                    />
-                                    );
-                                }
-                                msgboxButtons.push(
-                                    <button 
-                                        className="mb-dialog-button-bar-button" 
-                                        title={outcome.attributes?.tooltip || outcome.label || ""}
-                                        onMouseDown={(e) => {e.stopPropagation();this.hideMessageBox(outcome)}}
-                                    >
-                                        {icon}
-                                        {outcome.label || outcome.developerName}
-                                    </button>
-                                );
-                            });
+                            if(childElement.isVisible){
+                                outcomes?.forEach((outcome: any) => {
+                                   let icon: any;
+                                    if(outcome.attributes?.icon) {
+                                        icon=(
+                                        <span 
+                                            className={"mb-dialog-button-bar-button-icon glyphicon glyphicon-" +  outcome.attributes["icon"]}
+                                        />
+                                        );
+                                    }
+                                    if(childElement.isEnabled) {
+                                        msgboxButtons.push(
+                                            <button 
+                                                className="mb-dialog-button-bar-button-enabled"
+                                                title={outcome.attributes?.tooltip || outcome.label || ""}
+                                                onMouseDown={(e) => {e.stopPropagation(); this.hideMessageBox(outcome)}}
+                                            >
+                                                {icon}
+                                                {outcome.label || outcome.developerName}
+                                            </button>
+                                        );
+                                    }
+                                    else {
+                                        msgboxButtons.push(
+                                            <button 
+                                                className="mb-dialog-button-bar-button"
+                                                title={outcome.attributes?.tooltip || outcome.label || ""}
+                                            >
+                                                {icon}
+                                                {outcome.label || outcome.developerName}
+                                            </button>
+                                        );
+                                    }                                    
+                                });
+                            }
                         }
                         else {
                             displayChildData.push(childElement)
                         }
                     });
+
+                    let msgboxButtonBar: any;
+                    if(msgboxButtons.length > 0) {
+                        msgboxButtonBar = (
+                            <div className="mb-dialog-button-bar" >
+                                    {msgboxButtons}   
+                            </div>
+                        );
+                    }
 
                     let children: any = manywho.component.getChildComponents(displayChildData, containerElement.id, this.props.flowKey);
 
@@ -276,18 +308,16 @@ export default class ModalContainer extends React.Component<any,any> {
                                 >
                                         <div style={{display: 'flex', flexDirection: 'row', flexGrow: 1}}>
                                             {icon}
-                                            <span className="mb-dialog-header-title">{this.container.attributes["title"]}</span>
+                                            <span className="mb-dialog-header-title">{this.container.attributes?.title}</span>
                                         </div>
                                         <div style={{display: 'flex', flexDirection: 'row', marginLeft: 'auto', flexGrow: 0}}>
                                             {closeButton}
                                         </div>
                                 </div>
-                                <div className="mb-dialog-body" >
+                                <div className={this.container.attributes?.noPadding ? "mb-dialog-body-fullscreen" : "mb-dialog-body"} >
                                     {children}
                                 </div>
-                                <div className="mb-dialog-button-bar" >
-                                        {msgboxButtons}   
-                                </div>
+                                    {msgboxButtonBar}
                                 </div >
                             </div>
                         </div>
