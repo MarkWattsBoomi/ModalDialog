@@ -333,5 +333,5 @@ export default class ModalContainer extends React.Component<any,any> {
 export const getChartContainer = () => ModalContainer;
 // : typeof G13PageSectionRepeater =>
 // manywho.component.getByName("charts") || ChartContainer
-manywho.component.registerContainer('charts', ModalContainer);
+manywho.component.registerContainer('flip', ModalContainer);
 //manywho.component.registerContainer('mark', ModalContainer);

@@ -26,7 +26,7 @@ zXywaYorwx5ZbUBbt/lZo4Xx2240pYVnbns+/QHznND+i4T89pusZSsWNFpEq/VZ
 
 Based on a single boolean Flow Value or Tag, this will pop up a draggable modal dialog based on a page container.
 
-!!! This component hijacks the Chart type container.
+!!! This component hijacks the Flip type container.
 
 The dialog's content is the content of the page container.
 
@@ -37,7 +37,7 @@ The dialog's title, content and buttons are all configuable.
 
 ### Type
 
-Set the container type to "Chart"
+Set the container type to "Flip"
 
 
 ### Label
