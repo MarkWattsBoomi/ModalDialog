@@ -18,7 +18,13 @@ export default class FlowAJAX {
         }
         request.credentials= "same-origin";
 
-        let url: string = window.location.origin || 'https://flow.manywho.com';
+        let url: string = "";
+        if((!manywho.settings.global('platform.uri')) && (manywho.settings.global('platform.uri').length <= 0)) {
+         url = window.location.origin || 'https://flow.manywho.com';
+        }
+        else {
+            url = manywho.settings.global('platform.uri');
+        }
         url += "/api/run/1/state/" + stateId + "/values/name/" + valueName;
         
  
